@@ -177,17 +177,6 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkComboBox" id="videocombo">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">0</property>
-                    <property name="top_attach">5</property>
-                    <property name="width">2</property>
-                  </packing>
-                </child>
-                <child>
                   <object class="GtkBox" id="currenttempbox">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
@@ -373,6 +362,21 @@
                   <packing>
                     <property name="left_attach">1</property>
                     <property name="top_attach">1</property>
+                    <property name="width">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkComboBoxText" id="videocombo">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <items>
+                      <item translatable="yes">!Temp</item>
+                      <item translatable="yes">Temp</item>
+                    </items>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">5</property>
                     <property name="width">2</property>
                   </packing>
                 </child>

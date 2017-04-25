@@ -1,7 +1,21 @@
 #include <gtkmm.h>
 #include <iostream>
+#include "settings.hpp"
 
 Gtk::ApplicationWindow* hubwin = nullptr;
+Gtk::Button* vidButton;
+Gtk::ComboBoxText* vidCombo;
+
+
+static void on_vidbutton_clicked()
+{
+  if(vidCombo)
+  {
+    std::string vid = (vidCombo->get_active_text()).raw();
+    std::cout << vid << std::endl;
+  }
+
+}
 
 int main(int argc, char* argv[])
 {
@@ -33,6 +47,13 @@ int main(int argc, char* argv[])
 
   if(hubwin)
   {
+    refBuilder->get_widget("videobutton",vidButton);
+    if(vidButton)
+    {
+      refBuilder->get_widget("videocombo",vidCombo);
+      vidButton->signal_clicked().connect(sigc::ptr_fun(on_vidbutton_clicked));
+    }
+
     app->run(*hubwin);
   }
   delete hubwin;
