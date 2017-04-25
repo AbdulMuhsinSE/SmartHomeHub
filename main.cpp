@@ -1,10 +1,13 @@
 #include <gtkmm.h>
 #include <iostream>
+#include <glibmm/ustring.h>
 #include "settings.hpp"
 
 Gtk::ApplicationWindow* hubwin = nullptr;
 Gtk::Button* vidButton;
 Gtk::ComboBoxText* vidCombo;
+Gtk::Button* pollButton;
+Gtk::Entry* tempEntry;
 
 
 static void on_vidbutton_clicked()
@@ -14,7 +17,15 @@ static void on_vidbutton_clicked()
     std::string vid = (vidCombo->get_active_text()).raw();
     std::cout << vid << std::endl;
   }
+}
 
+static void on_pollbutton_clicked()
+{
+  if(tempEntry)
+  {
+    const char* var = "79";
+    tempEntry->set_text(Glib::locale_to_utf8(var));
+  }
 }
 
 int main(int argc, char* argv[])
@@ -52,6 +63,13 @@ int main(int argc, char* argv[])
     {
       refBuilder->get_widget("videocombo",vidCombo);
       vidButton->signal_clicked().connect(sigc::ptr_fun(on_vidbutton_clicked));
+    }
+
+    refBuilder->get_widget("pollbutton", pollButton);
+    if(pollButton)
+    {
+      refBuilder->get_widget("currenttempentry", tempEntry);
+      pollButton->signal_clicked().connect(sigc::ptr_fun(on_pollbutton_clicked));
     }
 
     app->run(*hubwin);
