@@ -1,6 +1,10 @@
 #include <gtkmm.h>
 #include <iostream>
 #include <glibmm/ustring.h>
+#include <fstream>
+#include <unistd.h>
+#include <sys/types.h>
+#include <pwd.h>
 #include "settings.hpp"
 
 Gtk::ApplicationWindow* hubwin = nullptr;
@@ -11,16 +15,26 @@ Gtk::Button* minmaxButton;
 Gtk::Entry* tempEntry;
 Gtk::Entry* minEntry;
 Gtk::Entry* maxEntry;
-Gtk::Switch* garageSwitch;
-Gtk::Switch* lightSwitch;
+Gtk::Button* garageButton;
+Gtk::Button* lightButton;
+Gtk::ToggleButton* autoButton;
+Gtk::MessageDialog* hubDialog;
 
+const char *homedir;
 
 static void on_vidbutton_clicked()
 {
   if(vidCombo)
   {
     std::string vid = (vidCombo->get_active_text()).raw();
-    std::cout << vid << std::endl;
+    std::string path(homedir);
+    path += "/shares/doorbellshare/"+ vid + ".h624";
+    std::ifstream infile(path);
+    if(infile)
+    {
+      std::string command = "mplayer -fps 30 -vo caca " + path;
+      system(command.c_str());
+    }
   }
 }
 
@@ -39,28 +53,92 @@ static void on_minmaxbutton_clicked()
   {
     std::string min = minEntry->get_text().raw();
     std::string max = maxEntry->get_text().raw();
-    std::cout << "The heater will turn on at: " << min << ".\nThe air conditioner will turn on at: " << max << std::endl;
+    std::string command = "./temp.sh " + min + " " + max;
+    std::cout << command << std::endl;
+    system(command.c_str());
   }
 }
 
-static void on_garageswitch_changed()
+static void on_garageButton_changed()
 {
-  if(garageSwitch)
+  if(garageButton)
   {
-    std::cout << garageSwitch->get_active() << std::endl;
+    int gStatus;
+    std::string path(homedir);
+    path += "/shares/garageshare/GarageStatus";
+    std::ifstream infile(path);
+    while (infile >> gStatus)
+    {
+      hubDialog->set_title(Glib::locale_to_utf8("Garage Door Controls"));
+      if(gStatus == 1)
+      {
+        hubDialog->set_message(Glib::locale_to_utf8("Garage Door Closed"));
+      }
+      else
+      {
+        hubDialog->set_message(Glib::locale_to_utf8("Garage Door Opened"));
+      }
+      system("./garage.sh");
+      int result = hubDialog->run();
+    }
+
   }
 }
 
 static void on_lightswitch_changed()
 {
-  if(lightSwitch)
+  if(lightButton)
   {
-    std::cout << lightSwitch->get_active() << std::endl;
+    int lControlStatus;
+    std::string controlpath(homedir);
+    controlpath += "/shares/lightshare/lightControlStatus";
+    std::ifstream infile(controlpath);
+    while (infile >> lControlStatus)
+    {
+      hubDialog->set_title(Glib::locale_to_utf8("Light Controls"));
+      if(lControlStatus == 1)
+      {
+        int lStatus;
+        std::string path(homedir);
+        path += "/shares/lightshare/lightStatus";
+        std::ifstream lfile(path);
+        while(lfile >> lStatus)
+        {
+          if(lStatus == 1)
+          {
+            hubDialog->set_message(Glib::locale_to_utf8("Light Switched Off"));
+          }
+          else
+          {
+            hubDialog->set_message(Glib::locale_to_utf8("Light Switched On"));
+          }
+          system("./light.sh");
+        }
+      }
+      else
+      {
+        hubDialog->set_message(Glib::locale_to_utf8("Light Cannot Be Controlled in Auto Mode"));
+      }
+      //system("./light.sh");
+      int result = hubDialog->run();
+    }
+
   }
+}
+
+static void on_autoswitch_changed()
+{
+  std::cout << "You didn't think this would work be honest" << std::endl;
+  system("./automatic.sh");
 }
 
 int main(int argc, char* argv[])
 {
+
+  if ((homedir = getenv("HOME")) == NULL) {
+    homedir = getpwuid(getuid())->pw_dir;
+  }
+
   auto app = Gtk::Application::create(argc, argv, "org.gtkmm.example.base");
   Settings* mysettings = Settings::getHubSettings();
   mysettings->readSettings("test.sh");
@@ -88,6 +166,7 @@ int main(int argc, char* argv[])
   }
 
   refBuilder->get_widget("hubappwindow", hubwin);
+  refBuilder->get_widget("gdialog",hubDialog);
 
   if(hubwin)
   {
@@ -113,16 +192,37 @@ int main(int argc, char* argv[])
       minmaxButton->signal_clicked().connect(sigc::ptr_fun(on_minmaxbutton_clicked));
     }
 
-    refBuilder->get_widget("garageswitch", garageSwitch);
-    if(garageSwitch)
+    refBuilder->get_widget("garagebutton", garageButton);
+    if(garageButton)
     {
-      garageSwitch->property_active().signal_changed().connect(sigc::ptr_fun(on_garageswitch_changed));
+      garageButton->signal_clicked().connect(sigc::ptr_fun(on_garageButton_changed));
     }
 
-    refBuilder->get_widget("lightswitch", lightSwitch);
-    if(lightSwitch)
+    refBuilder->get_widget("lightbutton", lightButton);
+    if(lightButton)
     {
-      lightSwitch->property_active().signal_changed().connect(sigc::ptr_fun(on_lightswitch_changed));
+      lightButton->signal_clicked().connect(sigc::ptr_fun(on_lightswitch_changed));
+    }
+
+    refBuilder->get_widget("autobutton", autoButton);
+    if(autoButton)
+    {
+      int lControlStatus;
+      std::string controlpath(homedir);
+      controlpath += "/shares/lightshare/lightControlStatus";
+      std::ifstream infile(controlpath);
+      while (infile >> lControlStatus)
+      {
+        if(lControlStatus == 1)
+        {
+          autoButton->set_active(false);
+        }
+        else
+        {
+          autoButton->set_active();
+        }
+      }
+      autoButton->signal_toggled().connect(sigc::ptr_fun(on_autoswitch_changed));
     }
 
     app->run(*hubwin);
