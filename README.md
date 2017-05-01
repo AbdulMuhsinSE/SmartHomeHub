@@ -7,11 +7,11 @@ To mount a samba folder as a location: make sure the mounting point exists
 sudo mount -t cifs -o user=pi,iocharset=utf8,noperm //raspberrypi/garageshare ~/shares/garageshare  
 
 
-##THIS CODE IS PROVIDED AS IS!!! THIS WILL MOST LIKELY NOT WORK OUT OF THE BOX ON YOUR MACHINE! A LOT OF SETUP IS REQUIRED
+## THIS CODE IS PROVIDED AS IS!!! THIS WILL MOST LIKELY NOT WORK OUT OF THE BOX ON YOUR MACHINE! A LOT OF SETUP IS REQUIRED
 
 ## ONLY A PROTOTYPE
 
-###Devices, Programming Languages, & Programs Used
+### Devices, Programming Languages, & Programs Used
 * 3 Raspberry Pi 3s running Raspbian
 * A Raspberry Pi 2B running Raspbian
 * C++ to delegate methods to the GUI
