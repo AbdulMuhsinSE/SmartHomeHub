@@ -6,7 +6,7 @@ class Settings
 {
 private:
   static Settings* hubsettings;
-  Settings();
+  Settings(){};
   /*
   FileLocations Mapping is as follows:
   0 - light
@@ -27,4 +27,5 @@ public:
   void setDoorbell(std::string doorbell);
   bool readSettings(std::string filename);
   bool writeSettings(std::string filename);
+
 };

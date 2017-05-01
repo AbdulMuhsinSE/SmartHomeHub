@@ -7,80 +7,76 @@ Settings* Settings::getHubSettings(){
   if(hubsettings == 0)
   {
     hubsettings = new Settings();
-    for (int i = 0; i <= 3; i++)
-    {
-      fileLocations[i] = nullptr;
-    }
   }
 
   return hubsettings;
 }
 
-std::string getLight()
+std::string Settings::getLight()
 {
   return fileLocations[0];
 }
 
-std::string getGarage()
+std::string Settings::getGarage()
 {
   return fileLocations[1];
 }
 
-std::string getThermostat()
+std::string Settings::getThermostat()
 {
   return fileLocations[2];
 }
 
-std::string getDoorbell()
+std::string Settings::getDoorbell()
 {
   return fileLocations[3];
 }
 
-void setLight(std::string light)
+void Settings::setLight(std::string light)
 {
   fileLocations[0] = light;
 }
 
-void setGarage(std::string garage)
+void Settings::setGarage(std::string garage)
 {
   fileLocations[1] = garage;
 }
 
-void setThermostat(std::string thermostat)
+void Settings::setThermostat(std::string thermostat)
 {
   fileLocations[2] = thermostat;
 }
 
-void setDoorbell(std::string doorbell)
+void Settings::setDoorbell(std::string doorbell)
 {
   fileLocations[3] = doorbell;
 }
 
-bool readSettings(std::string filename )
+bool Settings::readSettings(std::string filename )
 {
-  string toConsume;
-  ifstream settingsfile;
+  std::string toConsume;
+  std::ifstream settingsfile;
   settingsfile.open(filename);
 
   if(settingsfile.is_open())
   {
     for(int i = 0; i <= 3; i++)
     {
-      if(!(inf >> fileLocations[i]))
+      if(!(settingsfile >> fileLocations[i]))
       {
-        cout << "Met EoF before all settings files could be set";
+        std::cout << "Met EoF before all settings files could be set" << std::endl;
         settingsfile.close();
         return false;
       }
+      std::cout << fileLocations[i] << std::endl;
     }
     settingsfile.close();
     return true;
   }
-  settingsfile.close();
   return false;
 }
 
-bool writeSettings(std::string filename)
+bool Settings::writeSettings(std::string filename)
 {
   std::ofstream ofs;
   bool allSettingsSet = true;
@@ -88,7 +84,7 @@ bool writeSettings(std::string filename)
   ofs.open(filename, std::ofstream::out | std::ofstream::trunc);
   for(int i = 0; i<= 3; i++)
   {
-    if(fileLocations[i] == nullptr)
+    if(!(fileLocations[i].empty()))
     {
       ofs << "\n";
       allSettingsSet = false;
